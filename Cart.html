@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HR Shop - Cart</title>
+<style>
+    body{font-family:Arial; background:#f2f2f2; padding:20px;}
+   .cart-item{background:white; padding:15px; margin:10px 0; border-radius:8px; display:flex; justify-content:space-between; align-items:center;}
+    button{padding:5px 10px; cursor:pointer;}
+   .qty-btn{background:#00d4d4; border:none; border-radius:5px;}
+   .remove{background:red; color:white; border:none; border-radius:5px;}
+</style>
+</head>
+<body>
+<h2>🛒 Your Cart</h2>
+<div id="cart-items"></div>
+<h3 id="total"></h3>
+<button onclick="clearCart()" class="remove">Empty Cart</button>
+<button onclick="checkout()" style="background:green; color:white;">Place Order</button>
+<a href="index.html">← Continue Shopping</a>
+
+<script>
+function loadCart(){
+    let cart = JSON.parse(localStorage.getItem("mycart")) || [];
+    let div = document.getElementById("cart-items");
+    let total = 0;
+    div.innerHTML = "";
+
+    if(cart.length == 0){
+        div.innerHTML = "<p>Cart is Empty</p>";
+    }
+
+    cart.forEach((item, index) => {
+        total += item.price * item.qty;
+        div.innerHTML += `
+        <div class="cart-item">
+            <div>
+                <b>${item.name}</b><br>
+                Price: ₹${item.price}
+            </div>
+            <div>
+                <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                ${item.qty}
+                <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+            </div>
+            <div>
+                Subtotal: ₹${item.price * item.qty}
+                <button class="remove" onclick="removeItem(${index})">Remove</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById("total").innerText = "Total: ₹" + total;
+}
+
+function updateQty(index, change){
+    let cart = JSON.parse(localStorage.getItem("mycart")) || [];
+    cart[index].qty += change;
+    if(cart[index].qty <= 0) cart.splice(index, 1);
+    localStorage.setItem("mycart", JSON.stringify(cart));
+    loadCart();
+}
+
+function removeItem(index){
+    let cart = JSON.parse(localStorage.getItem("mycart")) || [];
+    cart.splice(index, 1);
+    localStorage.setItem("mycart", JSON.stringify(cart));
+    loadCart();
+}
+
+function clearCart(){
+    localStorage.removeItem("mycart");
+    loadCart();
+}
+
+function checkout(){
+    let cart = JSON.parse(localStorage.getItem("mycart")) || [];
+    if(cart.length == 0){ alert("Cart is Empty!"); return; }
+    
+    // Total ને save કરી દે જેથી checkout page પર બતાવી શકીએ
+    let total = document.getElementById("total").innerText.replace("Total: ₹","");
+    localStorage.setItem("total", total);
+    
+    window.location = "checkout.html"; 
+}
+loadCart();
+
+</script>
+
+</body>
+</html>
